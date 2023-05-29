@@ -5,9 +5,6 @@ public class RequestThread extends Thread {
     private int name;
     private Socket clientSocket;
     private WebServer server;
-    private BufferedReader inFromClient;
-    private DataOutputStream outToClient;
-    boolean workerServiceRequested = true;
     File rootDir;
 
     public RequestThread(int num, Socket sock, WebServer server) {

@@ -11,7 +11,6 @@ public class WebServer {
         this.workerThreadsSem = new Semaphore(maxThreads);
     }
     public void startServer() {
-        ServerSocket welcomeSocket;
         Socket clientSocket;
 
         int nextThreadNumber = 0;
