@@ -45,17 +45,14 @@ public class RequestThread extends Thread {
             System.out.println("\n");
 
             if (!userAgent.contains("Firefox")) {
-                // Wenn der User-Agent nicht Firefox ist, senden Sie den Fehlercode 406 zurück
                 sendErrorResponse(out, 406, "Not Acceptable");
             } else {
                 if (resource.equals("/")) {
                     resource = "index.html";
                 }
-                // Prüfen Sie, ob der Ressourcenpfad gültig ist
                 serveFile(out, rootDir, resource);
             }
         } else {
-            // Wenn die Anfrage nicht GET ist, senden Sie den Fehlercode 400 zurück
             sendErrorResponse(out, 400, "Bad Request");
         }
 
@@ -75,7 +72,7 @@ public class RequestThread extends Thread {
             byte[] response = new byte[4096];
             if (mimeType != null && file.exists()) {
                 if (mimeType.startsWith("image/")) {
-                    // Wenn der MimeType ein Bild ist, lesen Sie den Dateiinhalt in ein Byte-Array
+                    // Wenn der MimeType ein Bild ist
                     FileInputStream fileInputStream = new FileInputStream(file);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     byte[] buffer = new byte[4096];
@@ -87,13 +84,13 @@ public class RequestThread extends Thread {
                     byteArrayOutputStream.close();
                     response = byteArrayOutputStream.toByteArray();
                 } else if (mimeType.equals("application/pdf")) {
-                    // Wenn der MimeType ein PDF ist, lesen Sie den Dateiinhalt in ein Byte-Array
+                    // Wenn der MimeType ein PDF ist
                     FileInputStream fileInputStream = new FileInputStream(file);
                     response = new byte[(int) file.length()];
                     fileInputStream.read(response);
                     fileInputStream.close();
                 } else {
-                    // Andernfalls lesen Sie den Textinhalt der Datei
+                    // Andernfalls Textinhalt der Datei
                     BufferedReader fileReader = new BufferedReader(new FileReader(file));
                     StringBuilder fileContent = new StringBuilder();
                     String line;
@@ -105,7 +102,6 @@ public class RequestThread extends Thread {
                 }
             }
 
-            // Senden Sie die Antwort inklusive des korrekten MimeType und der Länge des Inhalts
             out.write(("HTTP/1.0 200 OK\r\n" +
                     "Content-Type: " + mimeType + "\r\n" +
                     "Content-Length: " + response.length + "\r\n\r\n").getBytes());
@@ -116,7 +112,7 @@ public class RequestThread extends Thread {
             System.out.println("Content-Type: " + mimeType);
             System.out.println("Content-Length: " + response.length + "\n");
         } else {
-            // Wenn die Datei nicht gefunden wird, senden Sie den Fehlercode 404 zurück
+            // Wenn die Datei nicht gefunden wird
             sendErrorResponse(out, 404, "Not Found");
         }
     }
