@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 
 public class RequestThread extends Thread {
     private int name;
@@ -30,29 +31,50 @@ public class RequestThread extends Thread {
         String resource = requestParts[1];
 
         if (method.equals("GET")) {
-            String userAgent = "";
-            String line;
-            System.out.println("Client Header:");
-            while ((line = in.readLine()) != null && !line.isEmpty()) {
-                System.out.println(line);
-                if (line.startsWith("User-Agent:")) {
-                    userAgent = line.substring("User-Agent:".length()).trim();
-                }
-            }
-            System.out.println("\n");
-
-            if (!userAgent.contains("Firefox")) {
-                sendErrorResponse(out, 406, "Not Acceptable");
+            Date now = new Date();
+            if (resource.equals("/time")) {
+                String response = String.format("%tT", now);
+                out.write(("HTTP/1.0 200 OK\r\n" +
+                        "Content-Type: text/plain\r\n" +
+                        "Content-Length: " + response.length() + "\r\n\r\n").getBytes());
+                out.write(response.getBytes());
+                System.out.println("Gesendete Headerzeilen:");
+                System.out.println("HTTP/1.0 200 OK");
+                System.out.println("Content-Type: text/plain");
+                System.out.println("Content-Length: " + response.length() + "\n");
+            } else if (resource.equals("/date")) {
+                String response = String.format("%td.%tm.%tY", now, now, now);
+                out.write(("HTTP/1.0 200 OK\r\n" +
+                        "Content-Type: text/plain\r\n" +
+                        "Content-Length: " + response.length() + "\r\n\r\n").getBytes());
+                out.write(response.getBytes());
+                System.out.println("Gesendete Headerzeilen:");
+                System.out.println("HTTP/1.0 200 OK");
+                System.out.println("Content-Type: text/plain");
+                System.out.println("Content-Length: " + response.length() + "\n");
             } else {
-                if (resource.equals("/")) {
-                    resource = "index.html";
+                String userAgent = "";
+                String line;
+                System.out.println("Client Header:");
+                while ((line = in.readLine()) != null && !line.isEmpty()) {
+                    System.out.println(line);
+                    if (line.startsWith("User-Agent:")) {
+                        userAgent = line.substring("User-Agent:".length()).trim();
+                    }
                 }
-                serveFile(out, rootDir, resource);
-            }
-        } else {
+                System.out.println("\n");
+
+                if (!userAgent.contains("Firefox")) {
+                    sendErrorResponse(out, 406, "Not Acceptable");
+                } else {
+                    if (resource.equals("/")) {
+                        resource = "index.html";
+                    }
+                    serveFile(out, rootDir, resource);
+                }
+            }} else {
             sendErrorResponse(out, 400, "Bad Request");
         }
-
         out.flush();
         clientSocket.close();}
         catch (Exception e) {
@@ -134,6 +156,8 @@ public class RequestThread extends Thread {
                 return "image/gif";
             case "pdf":
                 return "application/pdf";
+            case "ico":
+                return "image/x-icon";
             default:
                 return null;
         }
